@@ -1,6 +1,6 @@
 import argparse
 import sys
-from mutpy import controller3, views, operators, utils
+from mutpy import controller, views, operators, utils
 from mutpy import __version__ as version
 
 
@@ -65,7 +65,7 @@ def build_controller(cfg):
     built_views = build_views(cfg)
     mutant_generator = build_mutator(cfg)
     target_loader = utils.ModulesLoader(cfg.target, cfg.path)
-    return controller3.MutationController(
+    return controller.MutationController(
         target_loader=target_loader,
         views=built_views,
         mutant_generator=mutant_generator,
@@ -94,10 +94,10 @@ def build_mutator(cfg):
                       for name in cfg.disable_operator}
 
     if cfg.order == 1:
-        return controller3.FirstOrderMutator(operators_set, cfg.percentage)
+        return controller.FirstOrderMutator(operators_set, cfg.percentage)
     else:
         hom_strategy = build_hom_strategy(cfg)
-        return controller3.HighOrderMutator(operators_set, cfg.percentage, hom_strategy=hom_strategy)
+        return controller.HighOrderMutator(operators_set, cfg.percentage, hom_strategy=hom_strategy)
 
 
 def build_hom_strategy(cfg):
@@ -105,7 +105,7 @@ def build_hom_strategy(cfg):
         print('Order should be > 0.')
         sys.exit(-1)
     try:
-        name_to_hom_strategy = {hom_strategy.name: hom_strategy for hom_strategy in controller3.hom_strategies}
+        name_to_hom_strategy = {hom_strategy.name: hom_strategy for hom_strategy in controller.hom_strategies}
         return name_to_hom_strategy[cfg.hom_strategy](order=cfg.order)
     except KeyError:
         print('Unsupported HOM strategy {}! Use --list-hom-strategies to show strategies.'.format(cfg.hom_strategy))
@@ -159,5 +159,5 @@ def list_operators():
 
 def list_hom_strategies():
     print('HOM strategies:')
-    for strategy in controller3.hom_strategies:
+    for strategy in controller.hom_strategies:
         print(' - {}'.format(strategy.name))
